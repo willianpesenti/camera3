@@ -38,14 +38,14 @@ const hero = {
 
 // Configuração dos inimigos (câmeras)
 let enemies = [];
-const enemyWidth = 90; // Aumentado em 50%
-const enemyHeight = 90; // Aumentado em 50%
-const enemySpeed = 1; // Velocidade base dos inimigos
+const enemyWidth = 90; // Tamanho das câmeras
+const enemyHeight = 90;
+const baseEnemySpeed = 2; // Velocidade base das câmeras
 
 // Configuração dos tiros (bolas)
 let bullets = [];
-const bulletWidth = 30; // Aumentado em 50%
-const bulletHeight = 30; // Aumentado em 50%
+const bulletWidth = 30;
+const bulletHeight = 30;
 
 // Contagem de pontos
 let score = 0;
@@ -58,8 +58,8 @@ function handleKeyDown(e) {
     gameState = "PLAYING";
     createEnemy();
   } else if (gameState === "PLAYING") {
-    if (e.code === "ArrowLeft") hero.x -= 20;
-    if (e.code === "ArrowRight") hero.x += 20;
+    if (e.code === "ArrowLeft") hero.x = Math.max(hero.x - 20, 0);
+    if (e.code === "ArrowRight") hero.x = Math.min(hero.x + 20, WIDTH - hero.width);
     if (e.code === "Space") shoot();
   } else if (gameState === "GAME_OVER" && e.code === "KeyR") {
     restartGame();
@@ -80,13 +80,12 @@ function shoot() {
 // Função para criar inimigos randômicos
 function createEnemy() {
   const x = Math.random() * (WIDTH - enemyWidth);
-  const y = -enemyHeight; // Aparece fora da tela no topo
   enemies.push({
     x: x,
-    y: y,
+    y: -enemyHeight, // Aparece fora da tela no topo
     width: enemyWidth,
     height: enemyHeight,
-    speed: enemySpeed + score * 0.1, // Aumenta a velocidade conforme a pontuação
+    speed: baseEnemySpeed + score * 0.1, // Aumenta a velocidade conforme a pontuação
     alive: true,
   });
 
@@ -110,15 +109,24 @@ function updateGame() {
   enemies.forEach((enemy) => {
     enemy.y += enemy.speed;
 
-    // Verifica se o inimigo saiu da tela (Game Over)
-    if (enemy.y > HEIGHT && enemy.alive) {
+    // Verifica se o inimigo atingiu o herói
+    if (
+      enemy.x < hero.x + hero.width &&
+      enemy.x + enemy.width > hero.x &&
+      enemy.y + enemy.height > hero.y
+    ) {
+      gameState = "GAME_OVER";
+    }
+
+    // Verifica se o inimigo ultrapassou o limite inferior da tela
+    if (enemy.y > HEIGHT) {
       gameState = "GAME_OVER";
     }
   });
 
   // Verifica colisões entre tiros e inimigos
-  enemies.forEach((enemy) => {
-    bullets.forEach((bullet) => {
+  bullets.forEach((bullet) => {
+    enemies.forEach((enemy) => {
       if (
         bullet.x < enemy.x + enemy.width &&
         bullet.x + bullet.width > enemy.x &&
@@ -127,6 +135,7 @@ function updateGame() {
         enemy.alive
       ) {
         enemy.alive = false;
+        bullet.hit = true; // Marca o tiro como utilizado
         score++; // Incrementa a pontuação
       }
     });
@@ -134,6 +143,9 @@ function updateGame() {
 
   // Remove inimigos "mortos"
   enemies = enemies.filter((enemy) => enemy.alive);
+
+  // Remove tiros que acertaram
+  bullets = bullets.filter((bullet) => !bullet.hit);
 }
 
 // Renderização da tela de título
