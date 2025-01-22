@@ -4,14 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CÂMERA 3</title>
-  <!-- Caminho relativo para o CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Canvas onde o jogo será desenhado -->
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <!-- Canvas do jogo -->
+  <canvas id="gameCanvas" width="800" height="600" style="display: none;"></canvas>
 
-  <!-- Caminho relativo para o JS -->
+  <!-- Vídeo de introdução -->
+  <video id="introVideo" width="800" height="600" style="display: none;" preload="auto">
+    <source src="video/intro.mp4" type="video/mp4">
+    Seu navegador não suporta vídeos.
+  </video>
+
+  <!-- Script do jogo -->
   <script src="js/game.js"></script>
 </body>
 </html>
