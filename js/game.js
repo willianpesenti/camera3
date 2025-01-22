@@ -203,17 +203,19 @@ function drawGameOverScreen() {
   ctx.fillStyle = "red";
   ctx.font = "48px Arial";
   ctx.textAlign = "center";
-  ctx.fillText(
-    `VOCÊ QUEBROU ${score} CÂMERAS!`,
-    WIDTH / 2,
-    HEIGHT / 2 - 100
-  );
+
+  // Exibe mensagem no singular ou plural
+  if (score === 1) {
+    ctx.fillText(`VOCÊ QUEBROU ${score} CÂMERA!`, WIDTH / 2, HEIGHT / 2 - 100);
+  } else {
+    ctx.fillText(`VOCÊ QUEBROU ${score} CÂMERAS!`, WIDTH / 2, HEIGHT / 2 - 100);
+  }
 
   ctx.drawImage(titleImg, WIDTH / 2 - 100, HEIGHT / 2, 200, 200);
 
   ctx.fillStyle = "white";
   ctx.font = "24px Arial";
-  ctx.fillText("Pressione R para reiniciar", WIDTH / 2, HEIGHT / 2 + 150);
+  ctx.fillText("Pressione R para reiniciar", WIDTH / 2, HEIGHT / 2 + 200);
 }
 
 // Reinicia o jogo
