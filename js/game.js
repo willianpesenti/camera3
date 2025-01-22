@@ -26,7 +26,7 @@ document.addEventListener("keydown", handleKeyDown);
 
 function handleKeyDown(e) {
   if (gameState === "TITLE" && e.code === "Space") {
-    startVideo(); // Inicia o vídeo
+    startVideo(); // Inicia o vídeo antes da partida
   } else if (gameState === "PLAYING") {
     if (e.code === "ArrowLeft") hero.x = Math.max(hero.x - 20, 0);
     if (e.code === "ArrowRight") hero.x = Math.min(hero.x + 20, canvas.width - hero.width);
@@ -36,15 +36,15 @@ function handleKeyDown(e) {
   }
 }
 
-// Inicia o vídeo
+// Inicia o vídeo antes da partida
 function startVideo() {
   gameState = "VIDEO";
-  canvas.style.display = "none";
-  introVideo.style.display = "block";
+  canvas.style.display = "none"; // Oculta o canvas durante o vídeo
+  introVideo.style.display = "block"; // Mostra o vídeo
   introVideo.play();
 
   introVideo.onended = () => {
-    // Após o vídeo terminar, começa o jogo
+    // Após o vídeo terminar, inicia o jogo
     introVideo.style.display = "none";
     canvas.style.display = "block";
     gameState = "PLAYING";
@@ -82,6 +82,11 @@ function drawTitleScreen() {
   ctx.fillStyle = "white";
   ctx.font = "24px Arial";
   ctx.fillText("Pressione ESPAÇO para começar", canvas.width / 2, canvas.height / 2 + 50);
+}
+
+// Renderização do jogo
+function drawGame() {
+  // Implementação do jogo
 }
 
 // Loop principal
