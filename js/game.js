@@ -79,6 +79,8 @@ function shoot() {
 
 // Função para criar inimigos randômicos
 function createEnemy() {
+  if (gameState !== "PLAYING") return; // Impede a criação de inimigos após o Game Over
+
   const x = Math.random() * (WIDTH - enemyWidth);
   enemies.push({
     x: x,
@@ -90,9 +92,7 @@ function createEnemy() {
   });
 
   // Adiciona novos inimigos a cada 2 segundos
-  if (gameState === "PLAYING") {
-    setTimeout(createEnemy, Math.max(2000 - score * 100, 500)); // Diminui o intervalo conforme a pontuação aumenta
-  }
+  setTimeout(createEnemy, Math.max(2000 - score * 100, 500)); // Diminui o intervalo conforme a pontuação aumenta
 }
 
 // Atualização do jogo
@@ -202,12 +202,14 @@ function drawGameOverScreen() {
   ctx.fillText(
     `VOCÊ QUEBROU ${score} CÂMERAS!`,
     WIDTH / 2,
-    HEIGHT / 2 - 50
+    HEIGHT / 2 - 100
   );
+
+  ctx.drawImage(titleImg, WIDTH / 2 - 100, HEIGHT / 2, 200, 200);
 
   ctx.fillStyle = "white";
   ctx.font = "24px Arial";
-  ctx.fillText("Pressione R para reiniciar", WIDTH / 2, HEIGHT / 2 + 50);
+  ctx.fillText("Pressione R para reiniciar", WIDTH / 2, HEIGHT / 2 + 150);
 }
 
 // Reinicia o jogo
