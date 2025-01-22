@@ -185,11 +185,14 @@ function drawGame() {
     ctx.drawImage(enemyImg, enemy.x, enemy.y, enemy.width, enemy.height);
   });
 
-  // Mostra a pontuação
-  ctx.fillStyle = "white";
-  ctx.font = "24px Arial";
+  // Mostra o placar em um quadrado preto com texto vermelho
+  ctx.fillStyle = "black";
+  ctx.fillRect(WIDTH - 220, HEIGHT - 50, 210, 40);
+
+  ctx.fillStyle = "red";
+  ctx.font = "20px Arial";
   ctx.textAlign = "right";
-  ctx.fillText(`QUEBROU: ${score} câmeras`, WIDTH - 10, HEIGHT - 10);
+  ctx.fillText(`QUEBROU: ${score} câmeras`, WIDTH - 10, HEIGHT - 20);
 }
 
 // Renderização da tela de game over
