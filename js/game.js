@@ -25,25 +25,27 @@ const bulletImg = new Image();
 bulletImg.src = "images/bola.png";
 
 // Estado do jogo
-let gameState = "TITLE"; // Estados: TITLE, PLAYING, GAME_OVER
+let gameState = "TITLE"; // Estados possíveis: TITLE, PLAYING, GAME_OVER
 
 // Configuração do herói
 const hero = {
-  x: WIDTH / 2 - 50,
-  y: HEIGHT - 120,
-  width: 100,
-  height: 100,
+  x: WIDTH / 2 - 75,
+  y: HEIGHT - 150,
+  width: 150,
+  height: 150,
   currentImage: heroIdleImg,
 };
 
-// Configuração de inimigos
+// Configuração dos inimigos (câmeras)
 let enemies = [];
-const enemyWidth = 60;
-const enemyHeight = 60;
-const enemySpacing = 40;
+const enemyWidth = 90; // Aumentado em 50%
+const enemyHeight = 90; // Aumentado em 50%
+const enemySpeed = 1; // Velocidade base dos inimigos
 
-// Tiros (bolas)
+// Configuração dos tiros (bolas)
 let bullets = [];
+const bulletWidth = 30; // Aumentado em 50%
+const bulletHeight = 30; // Aumentado em 50%
 
 // Contagem de pontos
 let score = 0;
@@ -53,11 +55,11 @@ document.addEventListener("keydown", handleKeyDown);
 
 function handleKeyDown(e) {
   if (gameState === "TITLE" && e.code === "Space") {
-    gameState = "PLAYING"; // Inicia o jogo
-    createEnemies();
+    gameState = "PLAYING";
+    createEnemy();
   } else if (gameState === "PLAYING") {
-    if (e.code === "ArrowLeft") hero.x -= 15;
-    if (e.code === "ArrowRight") hero.x += 15;
+    if (e.code === "ArrowLeft") hero.x -= 20;
+    if (e.code === "ArrowRight") hero.x += 20;
     if (e.code === "Space") shoot();
   } else if (gameState === "GAME_OVER" && e.code === "KeyR") {
     restartGame();
@@ -67,12 +69,31 @@ function handleKeyDown(e) {
 // Função para disparar
 function shoot() {
   bullets.push({
-    x: hero.x + hero.width / 2 - 10,
+    x: hero.x + hero.width / 2 - bulletWidth / 2,
     y: hero.y,
-    width: 20,
-    height: 20,
+    width: bulletWidth,
+    height: bulletHeight,
     speed: 8,
   });
+}
+
+// Função para criar inimigos randômicos
+function createEnemy() {
+  const x = Math.random() * (WIDTH - enemyWidth);
+  const y = -enemyHeight; // Aparece fora da tela no topo
+  enemies.push({
+    x: x,
+    y: y,
+    width: enemyWidth,
+    height: enemyHeight,
+    speed: enemySpeed + score * 0.1, // Aumenta a velocidade conforme a pontuação
+    alive: true,
+  });
+
+  // Adiciona novos inimigos a cada 2 segundos
+  if (gameState === "PLAYING") {
+    setTimeout(createEnemy, Math.max(2000 - score * 100, 500)); // Diminui o intervalo conforme a pontuação aumenta
+  }
 }
 
 // Atualização do jogo
@@ -85,13 +106,23 @@ function updateGame() {
   // Remove tiros fora da tela
   bullets = bullets.filter((bullet) => bullet.y > 0);
 
+  // Atualiza os inimigos
+  enemies.forEach((enemy) => {
+    enemy.y += enemy.speed;
+
+    // Verifica se o inimigo saiu da tela (Game Over)
+    if (enemy.y > HEIGHT && enemy.alive) {
+      gameState = "GAME_OVER";
+    }
+  });
+
   // Verifica colisões entre tiros e inimigos
   enemies.forEach((enemy) => {
     bullets.forEach((bullet) => {
       if (
-        bullet.x < enemy.x + enemyWidth &&
+        bullet.x < enemy.x + enemy.width &&
         bullet.x + bullet.width > enemy.x &&
-        bullet.y < enemy.y + enemyHeight &&
+        bullet.y < enemy.y + enemy.height &&
         bullet.y + bullet.height > enemy.y &&
         enemy.alive
       ) {
@@ -103,11 +134,6 @@ function updateGame() {
 
   // Remove inimigos "mortos"
   enemies = enemies.filter((enemy) => enemy.alive);
-
-  // Se todos os inimigos forem destruídos, termina o jogo
-  if (enemies.length === 0) {
-    gameState = "GAME_OVER";
-  }
 }
 
 // Renderização da tela de título
@@ -144,9 +170,7 @@ function drawGame() {
 
   // Desenha os inimigos
   enemies.forEach((enemy) => {
-    if (enemy.alive) {
-      ctx.drawImage(enemyImg, enemy.x, enemy.y, enemyWidth, enemyHeight);
-    }
+    ctx.drawImage(enemyImg, enemy.x, enemy.y, enemy.width, enemy.height);
   });
 
   // Mostra a pontuação
@@ -172,20 +196,6 @@ function drawGameOverScreen() {
   ctx.fillStyle = "white";
   ctx.font = "24px Arial";
   ctx.fillText("Pressione R para reiniciar", WIDTH / 2, HEIGHT / 2 + 50);
-}
-
-// Inicializa os inimigos
-function createEnemies() {
-  enemies = [];
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 6; col++) {
-      enemies.push({
-        x: 50 + col * (enemyWidth + enemySpacing),
-        y: 50 + row * (enemyHeight + enemySpacing),
-        alive: true,
-      });
-    }
-  }
 }
 
 // Reinicia o jogo
