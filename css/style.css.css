@@ -1,0 +1,20 @@
+/* Reseta margens e paddings básicos */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;           /* fundo do body */
+  font-family: sans-serif;    /* fonte genérica */
+  color: #fff;                /* texto branco */
+}
+
+/* Canvas centralizado e estilizado */
+#gameCanvas {
+  display: block;
+  margin: 40px auto;
+  background-color: #111;     /* fundo do canvas (preto-acinzentado) */
+  border: 2px solid #fff;     /* borda branca */
+}
