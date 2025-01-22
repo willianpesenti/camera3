@@ -1,16 +1,19 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CÂMERA 3</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <!-- Canvas do jogo -->
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
+// Renderização da tela de título
+function drawTitleScreen() {
+  // Desenha o fundo (mesmo do jogo)
+  ctx.drawImage(bgImg, 0, 0, WIDTH, HEIGHT);
 
-  <!-- Script do jogo -->
-  <script src="js/game.js"></script>
-</body>
-</html>
+  // Desenha o título
+  ctx.fillStyle = "green";
+  ctx.font = "48px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("CÂMERA 3", WIDTH / 2, HEIGHT / 2 - 100);
+
+  // Desenha a imagem de título
+  ctx.drawImage(titleImg, WIDTH / 2 - 100, HEIGHT / 2 - 50, 200, 200);
+
+  // Instruções para iniciar
+  ctx.fillStyle = "white";
+  ctx.font = "24px Arial";
+  ctx.fillText("Pressione ESPAÇO para começar", WIDTH / 2, HEIGHT / 2 + 150);
+}
