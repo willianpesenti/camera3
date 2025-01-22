@@ -188,7 +188,8 @@ function drawGame() {
   // Mostra a pontuação
   ctx.fillStyle = "white";
   ctx.font = "24px Arial";
-  ctx.fillText(`Pontos: ${score}`, 10, 30);
+  ctx.textAlign = "right";
+  ctx.fillText(`QUEBROU: ${score} câmeras`, WIDTH - 10, HEIGHT - 10);
 }
 
 // Renderização da tela de game over
