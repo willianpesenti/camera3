@@ -35,8 +35,9 @@
             position: absolute;
             bottom: 0;
             left: 0;
-            width: 50%; /* Ocupa metade da largura da tela */
+            width: 40%; /* Ocupa 40% da largura da tela (20% menor que antes) */
             height: auto;
+            z-index: 1; /* Fica por baixo do texto */
         }
         #startScreen h1 {
             font-size: 64px;
@@ -44,6 +45,8 @@
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             margin: 0;
+            z-index: 2; /* Fica por cima do personagem */
+            position: relative;
         }
         #startScreen h2 {
             font-size: 24px;
@@ -51,6 +54,8 @@
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             margin: 10px 0;
+            z-index: 2; /* Fica por cima do personagem */
+            position: relative;
         }
         button {
             padding: 10px 20px;
@@ -61,6 +66,8 @@
             background-color: white;
             color: black;
             transition: background-color 0.3s;
+            z-index: 2; /* Botão também fica por cima */
+            position: relative;
         }
         button:hover {
             background-color: gray;
