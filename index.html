@@ -163,10 +163,11 @@
             videoScreen.style.display = 'flex'; // Mostra o vídeo
             introVideo.play(); // Reproduz o vídeo
 
-            introVideo.onended = () => {
-                videoScreen.style.display = 'none'; // Oculta o vídeo
+            // Garante que o jogo inicie imediatamente após o vídeo
+            introVideo.addEventListener('ended', () => {
+                videoScreen.style.display = 'none'; // Oculta a tela do vídeo
                 startGame(); // Inicia o jogo
-            };
+            });
         }
 
         function startGame() {
