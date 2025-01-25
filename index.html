@@ -15,7 +15,8 @@
         canvas {
             display: none;
             margin: 0 auto;
-            background: black;
+            background: url('./images/bg2.png') no-repeat center center;
+            background-size: cover;
         }
         #startScreen, #endScreen {
             position: absolute;
@@ -23,13 +24,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: black;
-            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             z-index: 2;
+        }
+        #endScreen {
+            background: url('./images/bgfinal.png') no-repeat center center;
+            background-size: cover;
         }
         #startScreen h1, #endScreen h1 {
             font-size: 48px;
@@ -50,6 +53,23 @@
         }
         button:hover {
             background-color: gray;
+        }
+        #videoScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+        #videoScreen video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         #controls {
             position: fixed;
@@ -92,7 +112,7 @@
         <button onclick="startIntro()">Iniciar Jogo</button>
     </div>
     <div id="videoScreen">
-        <video id="introVideo" src="./video/intro.mp4" playsinline></video>
+        <video id="introVideo" src="./video/intro.mp4" playsinline autoplay></video>
     </div>
     <canvas id="gameCanvas"></canvas>
     <div id="controls">
@@ -124,6 +144,17 @@
         let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
+        const assets = {
+            background: './images/bg2.png',
+            heroIdle: './images/hero_idle.png',
+            heroShoot: './images/hero_kick.png',
+            enemy: './images/camera.png',
+            gameOverBg: './images/bgfinal.png',
+        };
+
+        const playerImage = new Image();
+        playerImage.src = assets.heroIdle;
+
         function resizeCanvas() {
             if (isMobile) {
                 canvas.width = window.innerWidth * 0.95;
@@ -137,7 +168,7 @@
         window.addEventListener('resize', resizeCanvas);
 
         function initGame() {
-            player = { x: canvas.width / 2, y: canvas.height - 50, width: 50, height: 20 };
+            player = { x: canvas.width / 2, y: canvas.height - 70, width: 50, height: 50 };
             bullets = [];
             enemies = [];
             score = 0;
@@ -147,7 +178,6 @@
         function startIntro() {
             startScreen.style.display = 'none';
             videoScreen.style.display = 'flex';
-            introVideo.play();
             introVideo.onended = () => {
                 videoScreen.style.display = 'none';
                 startGame();
@@ -190,8 +220,7 @@
         }
 
         function drawPlayer() {
-            ctx.fillStyle = 'white';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
         }
 
         function drawBullets() {
@@ -204,9 +233,10 @@
         }
 
         function drawEnemies() {
-            ctx.fillStyle = 'green';
-            enemies.forEach((enemy, index) => {
-                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            const enemyImage = new Image();
+            enemyImage.src = assets.enemy;
+            enemies.forEach((enemy) => {
+                ctx.drawImage(enemyImage, enemy.x, enemy.y, enemy.width, enemy.height);
                 enemy.y += 2;
                 if (enemy.y > canvas.height) endGame();
             });
@@ -231,13 +261,12 @@
 
         function spawnEnemies() {
             const enemyWidth = 40;
-            const enemyHeight = 20;
+            const enemyHeight = 40;
             const x = Math.random() * (canvas.width - enemyWidth);
             enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight });
         }
 
         touchArea.addEventListener('touchmove', (e) => {
-            e.preventDefault();
             const touchX = e.touches[0].clientX - canvas.offsetLeft;
             if (touchX >= 0 && touchX <= canvas.width - player.width) {
                 player.x = touchX;
@@ -251,6 +280,11 @@
                 width: 5,
                 height: 10,
             });
+            playerImage.src = assets.heroShoot;
+        });
+
+        fireButton.addEventListener('touchend', () => {
+            playerImage.src = assets.heroIdle;
         });
 
         document.addEventListener('keydown', (e) => {
