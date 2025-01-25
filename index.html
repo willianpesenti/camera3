@@ -105,7 +105,7 @@
     <div id="startScreen">
         <h1>CÂMERA 3</h1>
         <h2>O JOGO</h2>
-        <button id="startButton">Iniciar Jogo</button>
+        <button id="startButton">Quebrar câmeras</button>
         <img src="./images/titlePerson.png" alt="Personagem do Título">
     </div>
     <div id="videoScreen">
@@ -113,9 +113,9 @@
     </div>
     <canvas id="gameCanvas"></canvas>
     <div id="endScreen">
-        <h1>Fim de Jogo</h1>
+        <h1>QUANTAS CÂMERAS VOCÊ QUEBROU?</h1>
         <p id="finalScore"></p>
-        <button id="restartButton">Jogar Novamente</button>
+        <button id="restartButton">Tentar quebrar mais!</button>
     </div>
     <audio id="gameMusic" src="./audio/camera3.mp3" loop></audio>
     <audio id="gameOverMusic" src="./audio/camera-3-game-over.mp3"></audio>
@@ -258,7 +258,7 @@
             gameOverMusic.currentTime = 0;
             gameOverMusic.play();
             endScreen.style.display = 'flex';
-            document.getElementById('finalScore').innerText = `Pontuação: ${score}`;
+            document.getElementById('finalScore').innerText = `Quebrou: ${score}`;
         }
 
         function restartGame() {
