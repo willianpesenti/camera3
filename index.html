@@ -17,97 +17,11 @@
             margin: 0 auto;
             background: black;
         }
-        #startScreen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('./images/background.png') no-repeat center center / cover;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            text-align: center;
-            z-index: 2;
-        }
-        #startScreen img {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 30%; /* Ajustado para melhor proporção */
-            height: auto;
-            z-index: 1;
-        }
-        #startScreen h1 {
-            font-size: 64px;
-            font-weight: bold;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            margin: 0;
-            z-index: 2;
-            position: relative;
-        }
-        #startScreen h2 {
-            font-size: 24px;
-            font-weight: normal;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            margin: 10px 0;
-            z-index: 2;
-            position: relative;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 18px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: white;
-            color: black;
-            transition: background-color 0.3s;
-            z-index: 2;
-            position: relative;
-        }
-        button:hover {
-            background-color: gray;
-        }
-        #videoScreen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            display: none; /* Inicialmente oculto */
-            justify-content: center;
-            align-items: center;
-            z-index: 2;
-        }
-        #videoScreen video {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain; /* Mantém o formato original do vídeo */
-        }
-        #endScreen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            text-align: center;
-            z-index: 2;
-        }
         #controls {
             position: fixed;
             bottom: 0;
             width: 100%;
-            height: 80px; /* Área de toque */
+            height: 80px; /* Área de controle reduzida */
             background: rgba(0, 0, 0, 0.8);
             display: none; /* Apenas em dispositivos móveis */
             justify-content: center;
@@ -138,15 +52,6 @@
     </style>
 </head>
 <body>
-    <div id="startScreen">
-        <img src="./images/titlePerson.png" alt="Personagem do Título">
-        <h1>CÂMERA 3</h1>
-        <h2>O JOGO</h2>
-        <button onclick="startIntro()">Iniciar Jogo</button>
-    </div>
-    <div id="videoScreen">
-        <video id="introVideo" src="./video/intro.mp4" playsinline></video>
-    </div>
     <canvas id="gameCanvas"></canvas>
     <div id="controls">
         <div class="control-touch" id="touchArea"></div>
@@ -154,32 +59,19 @@
             <button class="fire-button" id="fireButton">▲</button>
         </div>
     </div>
-    <div id="endScreen">
-        <h1>Fim de Jogo</h1>
-        <p id="finalScore"></p>
-        <button onclick="restartGame()">Jogar Novamente</button>
-    </div>
-    <audio id="gameOverAudio" src="./audio/camera-3-game-over.mp3"></audio>
-    <audio id="gameMusic" src="./audio/camera3.mp3" loop></audio>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const introVideo = document.getElementById('introVideo');
-        const videoScreen = document.getElementById('videoScreen');
-        const startScreen = document.getElementById('startScreen');
-        const endScreen = document.getElementById('endScreen');
         const controls = document.getElementById('controls');
         const touchArea = document.getElementById('touchArea');
         const fireButton = document.getElementById('fireButton');
-        const gameOverAudio = document.getElementById('gameOverAudio');
-        const gameMusic = document.getElementById('gameMusic');
 
-        let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
+        let player, bullets, enemies, gameLoopInterval, difficultyInterval;
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         function resizeCanvas() {
             if (isMobile) {
-                canvas.width = window.innerWidth * 0.95; 
+                canvas.width = window.innerWidth * 0.95;
                 canvas.height = window.innerHeight * 0.7;
             } else {
                 canvas.width = window.innerWidth;
@@ -193,46 +85,14 @@
             player = { x: canvas.width / 2, y: canvas.height - 50, width: 50, height: 20 };
             bullets = [];
             enemies = [];
-            score = 0;
-            spawnEnemies();
-        }
-
-        function startIntro() {
-            startScreen.style.display = 'none';
-            videoScreen.style.display = 'flex';
-            introVideo.play();
-
-            introVideo.onended = () => {
-                videoScreen.style.display = 'none';
-                startGame();
-            };
         }
 
         function startGame() {
             canvas.style.display = 'block';
             if (isMobile) controls.style.display = 'flex';
-            gameMusic.currentTime = 0;
-            gameMusic.play();
             initGame();
             gameLoopInterval = setInterval(updateGame, 1000 / 60);
             difficultyInterval = setInterval(spawnEnemies, 2000);
-        }
-
-        function restartGame() {
-            endScreen.style.display = 'none';
-            controls.style.display = 'none';
-            gameOverAudio.pause();
-            gameOverAudio.currentTime = 0;
-            startIntro();
-        }
-
-        function endGame() {
-            clearInterval(gameLoopInterval);
-            clearInterval(difficultyInterval);
-            gameMusic.pause();
-            endScreen.style.display = 'flex';
-            gameOverAudio.play();
-            document.getElementById('finalScore').innerText = `Pontuação: ${score}`;
         }
 
         function updateGame() {
@@ -240,7 +100,6 @@
             drawPlayer();
             drawBullets();
             drawEnemies();
-            checkCollisions();
         }
 
         function drawPlayer() {
@@ -261,25 +120,10 @@
             ctx.fillStyle = 'green';
             enemies.forEach((enemy, index) => {
                 ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-                enemy.y += enemy.speed;
-                if (enemy.y > canvas.height) endGame();
-            });
-        }
-
-        function checkCollisions() {
-            bullets.forEach((bullet, bIndex) => {
-                enemies.forEach((enemy, eIndex) => {
-                    if (
-                        bullet.x < enemy.x + enemy.width &&
-                        bullet.x + bullet.width > enemy.x &&
-                        bullet.y < enemy.y + enemy.height &&
-                        bullet.y + bullet.height > enemy.y
-                    ) {
-                        bullets.splice(bIndex, 1);
-                        enemies.splice(eIndex, 1);
-                        score++;
-                    }
-                });
+                enemy.y += 2;
+                if (enemy.y > canvas.height) {
+                    enemies.splice(index, 1);
+                }
             });
         }
 
@@ -287,30 +131,26 @@
             const enemyWidth = 40;
             const enemyHeight = 20;
             const x = Math.random() * (canvas.width - enemyWidth);
-            const speed = 2 + Math.random() * 2;
-            enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight, speed });
+            enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight });
         }
 
-        let touchStartX = null;
-
+        // Movimentação por Touch
         touchArea.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
+            e.preventDefault();
         });
 
         touchArea.addEventListener('touchmove', (e) => {
+            e.preventDefault();
             const touchX = e.touches[0].clientX;
-            if (touchStartX !== null) {
-                const deltaX = touchX - touchStartX;
-                player.x += deltaX * 0.5;
-                touchStartX = touchX;
+            const touchOffset = touchX - canvas.offsetLeft;
+            if (touchOffset >= 0 && touchOffset <= canvas.width) {
+                player.x = touchOffset - player.width / 2;
             }
         });
 
-        touchArea.addEventListener('touchend', () => {
-            touchStartX = null;
-        });
-
-        fireButton.addEventListener('click', () => {
+        // Botão de tiro
+        fireButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
             bullets.push({
                 x: player.x + player.width / 2 - 2.5,
                 y: player.y,
@@ -319,9 +159,10 @@
             });
         });
 
+        // Controles para Teclado (PC)
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') player.x -= 10;
-            if (e.key === 'ArrowRight') player.x += 10;
+            if (e.key === 'ArrowLeft' && player.x > 0) player.x -= 10;
+            if (e.key === 'ArrowRight' && player.x + player.width < canvas.width) player.x += 10;
             if (e.key === ' ') {
                 bullets.push({
                     x: player.x + player.width / 2 - 2.5,
@@ -332,8 +173,8 @@
             }
         });
 
-        document.addEventListener('gesturestart', (e) => e.preventDefault());
-        document.addEventListener('dblclick', (e) => e.preventDefault());
+        // Iniciar o jogo
+        startGame();
     </script>
 </body>
 </html>
