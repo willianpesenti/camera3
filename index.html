@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>CÂMERA 3 - O JOGO</title>
     <style>
         body {
@@ -35,7 +35,7 @@
             position: absolute;
             bottom: 0;
             left: 0;
-            width: 40%;
+            width: 30%; /* Ajustado para melhor proporção */
             height: auto;
             z-index: 1;
         }
@@ -107,7 +107,7 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-            height: 80px; /* Reduzido para não interferir na nave */
+            height: 60px; /* Área menor para controles */
             background: rgba(0, 0, 0, 0.8);
             display: none; /* Apenas em dispositivos móveis */
             justify-content: center;
@@ -119,19 +119,19 @@
             height: 100%;
         }
         #controls .fire-area {
-            flex: 0 0 80px;
+            flex: 0 0 60px; /* Botão menor */
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         #controls .fire-button {
-            width: 80px;
-            height: 80px;
+            width: 60px; /* Botão menor */
+            height: 60px;
             background-color: white;
             border: none;
             border-radius: 50%;
-            font-size: 24px;
+            font-size: 16px;
             color: black;
             cursor: pointer;
         }
@@ -165,6 +165,7 @@
         <button onclick="restartGame()">Jogar Novamente</button>
     </div>
     <audio id="gameOverAudio" src="./audio/camera-3-game-over.mp3"></audio>
+    <audio id="gameMusic" src="./audio/camera3.mp3" loop></audio>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -176,14 +177,15 @@
         const touchArea = document.getElementById('touchArea');
         const fireButton = document.getElementById('fireButton');
         const gameOverAudio = document.getElementById('gameOverAudio');
+        const gameMusic = document.getElementById('gameMusic');
 
         let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         function resizeCanvas() {
             if (isMobile) {
-                canvas.width = window.innerWidth * 0.9; // Reduzido para adaptar a controles móveis
-                canvas.height = window.innerHeight * 0.6; // Espaço para nave e controles
+                canvas.width = window.innerWidth * 0.9; // Melhor proporção para controles
+                canvas.height = window.innerHeight * 0.7;
             } else {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
@@ -214,6 +216,8 @@
         function startGame() {
             canvas.style.display = 'block';
             if (isMobile) controls.style.display = 'flex';
+            gameMusic.currentTime = 0;
+            gameMusic.play();
             initGame();
             gameLoopInterval = setInterval(updateGame, 1000 / 60);
             difficultyInterval = setInterval(spawnEnemies, 2000);
@@ -230,8 +234,9 @@
         function endGame() {
             clearInterval(gameLoopInterval);
             clearInterval(difficultyInterval);
+            gameMusic.pause();
             endScreen.style.display = 'flex';
-            gameOverAudio.play(); // Tocar a música da tela de Game Over
+            gameOverAudio.play(); // Toca a música de Game Over
             document.getElementById('finalScore').innerText = `Pontuação: ${score}`;
         }
 
@@ -291,7 +296,6 @@
             enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight, speed });
         }
 
-        // Controle por Touch
         let touchStartX = null;
 
         touchArea.addEventListener('touchstart', (e) => {
@@ -302,7 +306,7 @@
             const touchX = e.touches[0].clientX;
             if (touchStartX !== null) {
                 const deltaX = touchX - touchStartX;
-                player.x += deltaX * 0.5; // Ajusta sensibilidade
+                player.x += deltaX * 0.5;
                 touchStartX = touchX;
             }
         });
@@ -320,7 +324,6 @@
             });
         });
 
-        // Controle por Teclado (PC)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') player.x -= 10;
             if (e.key === 'ArrowRight') player.x += 10;
@@ -333,6 +336,10 @@
                 });
             }
         });
+
+        // Bloquear Zoom por Toque Duplo
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('dblclick', (e) => e.preventDefault());
     </script>
 </body>
 </html>
