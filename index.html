@@ -1,24 +1,267 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CÂMERA 3</title>
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Invaders HTML5</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: black;
+        }
+        #startScreen, #endScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            z-index: 2;
+        }
+        #endScreen {
+            display: none;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        #controls {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 3;
+            display: none; /* Controles móveis aparecem apenas no celular */
+        }
+        .control-area {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .control-area.left {
+            justify-content: flex-start;
+            padding-left: 20px;
+        }
+        .control-area.right {
+            justify-content: flex-end;
+            padding-right: 20px;
+        }
+        .control-button {
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            color: black;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
-  <!-- Container do Jogo -->
-  <div id="gameContainer">
-    <canvas id="gameCanvas"></canvas>
-    <!-- Controles de toque para dispositivos móveis -->
-    <div id="touchControls">
-      <button id="leftButton">←</button>
-      <button id="shootButton">Chutar</button>
-      <button id="rightButton">→</button>
+    <div id="startScreen">
+        <h1>Space Invaders HTML5</h1>
+        <button onclick="startGame()">Iniciar Jogo</button>
     </div>
-  </div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="endScreen">
+        <h1>Fim de Jogo</h1>
+        <p id="finalScore"></p>
+        <button onclick="restartGame()">Jogar Novamente</button>
+    </div>
+    <div id="controls">
+        <div class="control-area left" id="leftArea"></div>
+        <div class="control-area right" id="fireArea">
+            <button class="control-button" id="fireButton">▲</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-  <!-- Script do Jogo -->
-  <script src="js/game.js"></script>
+        // Detectar dispositivo e ajustar orientação
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        function resizeCanvas() {
+            if (isMobile) {
+                // Celulares: orientação vertical
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight - 120; // Deixar espaço para controles móveis
+                document.getElementById('controls').style.display = 'flex';
+            } else {
+                // Computadores: orientação horizontal
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                document.getElementById('controls').style.display = 'none';
+            }
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Variáveis do jogo
+        let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
+
+        function init() {
+            player = { x: canvas.width / 2, y: canvas.height - 50, width: 50, height: 20 };
+            bullets = [];
+            enemies = [];
+            score = 0;
+            generateEnemy();
+        }
+
+        function generateEnemy() {
+            const enemyWidth = 40;
+            const enemyHeight = 20;
+            const x = Math.random() * (canvas.width - enemyWidth);
+            enemies.push({
+                x: x,
+                y: 0,
+                width: enemyWidth,
+                height: enemyHeight,
+                speed: 2 + score * 0.1 // Aumenta a velocidade com base na pontuação
+            });
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawBullets() {
+            ctx.fillStyle = 'red';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+                bullet.y -= 5;
+            });
+            bullets = bullets.filter(bullet => bullet.y > 0);
+        }
+
+        function drawEnemies() {
+            ctx.fillStyle = 'green';
+            enemies.forEach(enemy => {
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                enemy.y += enemy.speed;
+            });
+        }
+
+        function checkCollisions() {
+            bullets.forEach((bullet, bIndex) => {
+                enemies.forEach((enemy, eIndex) => {
+                    if (
+                        bullet.x < enemy.x + enemy.width &&
+                        bullet.x + bullet.width > enemy.x &&
+                        bullet.y < enemy.y + enemy.height &&
+                        bullet.y + bullet.height > enemy.y
+                    ) {
+                        bullets.splice(bIndex, 1);
+                        enemies.splice(eIndex, 1);
+                        score++;
+                    }
+                });
+            });
+
+            enemies.forEach(enemy => {
+                if (
+                    (enemy.x < player.x + player.width &&
+                    enemy.x + enemy.width > player.x &&
+                    enemy.y + enemy.height > player.y) ||
+                    enemy.y + enemy.height >= canvas.height
+                ) {
+                    endGame();
+                }
+            });
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawBullets();
+            drawEnemies();
+            checkCollisions();
+        }
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            init();
+            gameLoopInterval = setInterval(update, 1000 / 60);
+            difficultyInterval = setInterval(generateEnemy, 1000);
+        }
+
+        function endGame() {
+            clearInterval(gameLoopInterval);
+            clearInterval(difficultyInterval);
+            document.getElementById('finalScore').innerText = `Pontuação: ${score}`;
+            document.getElementById('endScreen').style.display = 'flex';
+        }
+
+        function restartGame() {
+            document.getElementById('endScreen').style.display = 'none';
+            startGame();
+        }
+
+        let movingLeft = false;
+        let movingRight = false;
+
+        document.getElementById('leftArea').addEventListener('touchstart', e => {
+            const touchX = e.touches[0].clientX;
+            movingLeft = touchX < canvas.width / 2;
+            movingRight = !movingLeft;
+        });
+
+        document.getElementById('leftArea').addEventListener('touchmove', e => {
+            const touchX = e.touches[0].clientX;
+            movingLeft = touchX < canvas.width / 2;
+            movingRight = !movingLeft;
+        });
+
+        document.getElementById('leftArea').addEventListener('touchend', () => {
+            movingLeft = false;
+            movingRight = false;
+        });
+
+        setInterval(() => {
+            if (movingLeft && player.x > 0) player.x -= 10;
+            if (movingRight && player.x + player.width < canvas.width) player.x += 10;
+        }, 50);
+
+        document.getElementById('fireButton').addEventListener('click', () => {
+            bullets.push({ x: player.x + player.width / 2 - 2.5, y: player.y, width: 5, height: 10 });
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft' && player.x > 0) {
+                player.x -= 20;
+            } else if (e.key === 'ArrowRight' && player.x + player.width < canvas.width) {
+                player.x += 20;
+            } else if (e.key === ' ') {
+                bullets.push({ x: player.x + player.width / 2 - 2.5, y: player.y, width: 5, height: 10 });
+            }
+        });
+    </script>
 </body>
 </html>
