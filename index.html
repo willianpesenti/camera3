@@ -111,7 +111,7 @@
         <img src="./images/titlePerson.png" alt="Personagem do Título">
         <h1>CÂMERA 3</h1>
         <h2>O JOGO</h2>
-        <button onclick="showVideo()">Iniciar Jogo</button>
+        <button onclick="startIntro()">Iniciar Jogo</button>
     </div>
     <!-- Tela do Vídeo -->
     <div id="videoScreen">
@@ -133,17 +133,10 @@
         const startScreen = document.getElementById('startScreen');
         const endScreen = document.getElementById('endScreen');
 
-        // Detectar dispositivo e ajustar orientação
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
+        // Ajustar o tamanho do canvas
         function resizeCanvas() {
-            if (isMobile) {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight - 120;
-            } else {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -151,51 +144,59 @@
         // Variáveis do jogo
         let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
 
-        function init() {
+        function initGame() {
             player = { x: canvas.width / 2, y: canvas.height - 50, width: 50, height: 20 };
             bullets = [];
             enemies = [];
             score = 0;
         }
 
-        function showVideo() {
-            startScreen.style.display = 'none'; // Oculta a tela inicial
-            videoScreen.style.display = 'flex'; // Mostra o vídeo
-            introVideo.play(); // Reproduz o vídeo
+        function startIntro() {
+            // Ocultar a tela inicial e mostrar o vídeo
+            startScreen.style.display = 'none';
+            videoScreen.style.display = 'flex';
+            introVideo.play();
 
-            // Garante que o jogo inicie imediatamente após o vídeo
-            introVideo.addEventListener('ended', () => {
-                videoScreen.style.display = 'none'; // Oculta a tela do vídeo
-                startGame(); // Inicia o jogo
-            });
+            // Iniciar o jogo quando o vídeo terminar
+            introVideo.onended = () => {
+                videoScreen.style.display = 'none';
+                startGame();
+            };
         }
 
         function startGame() {
-            canvas.style.display = 'block'; // Mostra o canvas
-            init();
-            gameLoopInterval = setInterval(update, 1000 / 60);
+            canvas.style.display = 'block'; // Mostrar o canvas
+            initGame(); // Inicializar as variáveis do jogo
+            gameLoopInterval = setInterval(updateGame, 1000 / 60);
             difficultyInterval = setInterval(generateEnemy, 1000);
         }
 
         function restartGame() {
-            endScreen.style.display = 'none'; // Oculta a tela de game over
-            showVideo(); // Recomeça o vídeo e o jogo
+            // Reiniciar o fluxo do jogo
+            endScreen.style.display = 'none';
+            startIntro();
         }
 
         function endGame() {
             clearInterval(gameLoopInterval);
             clearInterval(difficultyInterval);
-            endScreen.style.display = 'flex'; // Mostra a tela de game over
+            endScreen.style.display = 'flex'; // Mostrar a tela de game over
             document.getElementById('finalScore').innerText = `Pontuação: ${score}`;
         }
 
-        function update() {
+        function updateGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // Funções de renderização
+            drawPlayer();
+            // Funções de atualização de inimigos e balas podem ser chamadas aqui
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
         }
 
         function generateEnemy() {
-            // Geração de inimigos
+            // Função para criar inimigos
         }
     </script>
 </body>
