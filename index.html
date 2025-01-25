@@ -107,15 +107,15 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-            height: 120px;
+            height: 80px; /* Reduzido para não interferir na nave */
             background: rgba(0, 0, 0, 0.8);
             display: none; /* Apenas em dispositivos móveis */
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             z-index: 3;
         }
-        #controls .move-area {
-            flex: 1;
+        #controls .control-touch {
+            width: 80%;
             height: 100%;
         }
         #controls .fire-area {
@@ -153,7 +153,7 @@
     <canvas id="gameCanvas"></canvas>
     <!-- Controles para dispositivos móveis -->
     <div id="controls">
-        <div class="move-area" id="moveArea"></div>
+        <div class="control-touch" id="touchArea"></div>
         <div class="fire-area">
             <button class="fire-button" id="fireButton">▲</button>
         </div>
@@ -164,6 +164,7 @@
         <p id="finalScore"></p>
         <button onclick="restartGame()">Jogar Novamente</button>
     </div>
+    <audio id="gameOverAudio" src="./audio/camera-3-game-over.mp3"></audio>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -172,15 +173,21 @@
         const startScreen = document.getElementById('startScreen');
         const endScreen = document.getElementById('endScreen');
         const controls = document.getElementById('controls');
-        const moveArea = document.getElementById('moveArea');
+        const touchArea = document.getElementById('touchArea');
         const fireButton = document.getElementById('fireButton');
+        const gameOverAudio = document.getElementById('gameOverAudio');
 
         let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            if (isMobile) {
+                canvas.width = window.innerWidth * 0.9; // Reduzido para adaptar a controles móveis
+                canvas.height = window.innerHeight * 0.6; // Espaço para nave e controles
+            } else {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
@@ -206,9 +213,7 @@
 
         function startGame() {
             canvas.style.display = 'block';
-            if (isMobile) {
-                controls.style.display = 'flex';
-            }
+            if (isMobile) controls.style.display = 'flex';
             initGame();
             gameLoopInterval = setInterval(updateGame, 1000 / 60);
             difficultyInterval = setInterval(spawnEnemies, 2000);
@@ -216,6 +221,9 @@
 
         function restartGame() {
             endScreen.style.display = 'none';
+            controls.style.display = 'none';
+            gameOverAudio.pause();
+            gameOverAudio.currentTime = 0;
             startIntro();
         }
 
@@ -223,6 +231,7 @@
             clearInterval(gameLoopInterval);
             clearInterval(difficultyInterval);
             endScreen.style.display = 'flex';
+            gameOverAudio.play(); // Tocar a música da tela de Game Over
             document.getElementById('finalScore').innerText = `Pontuação: ${score}`;
         }
 
@@ -244,9 +253,7 @@
             bullets.forEach((bullet, index) => {
                 ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
                 bullet.y -= 5;
-                if (bullet.y < 0) {
-                    bullets.splice(index, 1);
-                }
+                if (bullet.y < 0) bullets.splice(index, 1);
             });
         }
 
@@ -255,9 +262,7 @@
             enemies.forEach((enemy, index) => {
                 ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
                 enemy.y += enemy.speed;
-                if (enemy.y > canvas.height) {
-                    endGame();
-                }
+                if (enemy.y > canvas.height) endGame();
             });
         }
 
@@ -286,23 +291,23 @@
             enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight, speed });
         }
 
-        // Controles Móveis
+        // Controle por Touch
         let touchStartX = null;
 
-        moveArea.addEventListener('touchstart', (e) => {
+        touchArea.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
         });
 
-        moveArea.addEventListener('touchmove', (e) => {
+        touchArea.addEventListener('touchmove', (e) => {
             const touchX = e.touches[0].clientX;
             if (touchStartX !== null) {
                 const deltaX = touchX - touchStartX;
-                player.x += deltaX * 0.5;
+                player.x += deltaX * 0.5; // Ajusta sensibilidade
                 touchStartX = touchX;
             }
         });
 
-        moveArea.addEventListener('touchend', () => {
+        touchArea.addEventListener('touchend', () => {
             touchStartX = null;
         });
 
@@ -315,7 +320,7 @@
             });
         });
 
-        // Controles para PC
+        // Controle por Teclado (PC)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') player.x -= 10;
             if (e.key === 'ArrowRight') player.x += 10;
