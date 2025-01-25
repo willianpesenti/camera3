@@ -105,7 +105,7 @@
     <div id="startScreen">
         <h1>CÂMERA 3</h1>
         <h2>O JOGO</h2>
-        <button onclick="startIntro()">Iniciar Jogo</button>
+        <button id="startButton">Iniciar Jogo</button>
         <img src="./images/titlePerson.png" alt="Personagem do Título">
     </div>
     <div id="videoScreen">
@@ -124,51 +124,28 @@
         const videoScreen = document.getElementById('videoScreen');
         const startScreen = document.getElementById('startScreen');
         const endScreen = document.getElementById('endScreen');
+        const startButton = document.getElementById('startButton');
 
-        let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
-        const assets = {
-            background: './images/bg2.png',
-            heroIdle: './images/hero_idle.png',
-            heroShoot: './images/hero_kick.png',
-            enemy: './images/camera.png',
-            bullet: './images/bola.png',
-            gameOverBg: './images/bgfinal.png',
-        };
+        let gameLoopInterval, difficultyInterval;
 
-        const playerImage = new Image();
-        playerImage.src = assets.heroIdle;
-
-        const bulletImage = new Image();
-        bulletImage.src = assets.bullet;
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        function initGame() {
-            player = { x: canvas.width / 2 - 25, y: canvas.height - 70, width: 50, height: 50 };
-            bullets = [];
-            enemies = [];
-            score = 0;
-            spawnEnemies();
-        }
-
-        function startIntro() {
+        startButton.addEventListener('click', () => {
             startScreen.style.display = 'none';
             videoScreen.style.display = 'flex';
+
             introVideo.currentTime = 0;
-            introVideo.play().catch((error) => {
-                console.error('Erro ao reproduzir o vídeo:', error);
-            });
+            introVideo.play()
+                .then(() => {
+                    console.log("Vídeo iniciado com sucesso.");
+                })
+                .catch((error) => {
+                    console.error("Erro ao iniciar o vídeo:", error);
+                });
 
             introVideo.onended = () => {
                 videoScreen.style.display = 'none';
                 startGame();
             };
-        }
+        });
 
         function startGame() {
             canvas.style.display = 'block';
@@ -177,57 +154,16 @@
             difficultyInterval = setInterval(spawnEnemies, 2000);
         }
 
+        function initGame() {
+            // Inicialização dos objetos do jogo
+        }
+
         function updateGame() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawPlayer();
-            drawBullets();
-            drawEnemies();
-            checkCollisions();
-        }
-
-        function drawPlayer() {
-            ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
-        }
-
-        function drawBullets() {
-            bullets.forEach((bullet) => {
-                ctx.drawImage(bulletImage, bullet.x, bullet.y, bullet.width, bullet.height);
-                bullet.y -= 5;
-            });
-        }
-
-        function drawEnemies() {
-            const enemyImage = new Image();
-            enemyImage.src = assets.enemy;
-            enemies.forEach((enemy) => {
-                ctx.drawImage(enemyImage, enemy.x, enemy.y, enemy.width, enemy.height);
-                enemy.y += 2;
-                if (enemy.y > canvas.height) endGame();
-            });
-        }
-
-        function checkCollisions() {
-            bullets.forEach((bullet, bIndex) => {
-                enemies.forEach((enemy, eIndex) => {
-                    if (
-                        bullet.x < enemy.x + enemy.width &&
-                        bullet.x + bullet.width > enemy.x &&
-                        bullet.y < enemy.y + enemy.height &&
-                        bullet.y + bullet.height > enemy.y
-                    ) {
-                        bullets.splice(bIndex, 1);
-                        enemies.splice(eIndex, 1);
-                        score++;
-                    }
-                });
-            });
+            // Lógica do jogo
         }
 
         function spawnEnemies() {
-            const enemyWidth = 40;
-            const enemyHeight = 40;
-            const x = Math.random() * (canvas.width - enemyWidth);
-            enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight });
+            // Lógica para spawnar inimigos
         }
 
         function endGame() {
@@ -235,28 +171,12 @@
             clearInterval(difficultyInterval);
             canvas.style.display = 'none';
             endScreen.style.display = 'flex';
-            document.getElementById('finalScore').innerText = `Pontuação: ${score}`;
         }
 
         function restartGame() {
             endScreen.style.display = 'none';
-            startIntro();
+            startScreen.style.display = 'flex';
         }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' && player.x > 0) player.x -= 10;
-            if (e.key === 'ArrowRight' && player.x + player.width < canvas.width) player.x += 10;
-            if (e.key === ' ') {
-                bullets.push({
-                    x: player.x + player.width / 2 - 10,
-                    y: player.y,
-                    width: 20,
-                    height: 20,
-                });
-            }
-        });
-
-        startIntro();
     </script>
 </body>
 </html>
