@@ -157,8 +157,15 @@
         bulletImage.src = assets.bullet;
 
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            if (isMobile) {
+                // Configuração para dispositivos móveis: tela cheia
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            } else {
+                // Configuração para PC: reduzido para 30% do tamanho da janela
+                canvas.width = window.innerWidth * 0.3; // 30% da largura
+                canvas.height = window.innerHeight * 0.3; // 30% da altura
+            }
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
