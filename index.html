@@ -5,28 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CÂMERA 3</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap');
-  </style>
 </head>
 <body>
   <!-- Área do Jogo -->
-  <div id="gameArea">
-    <!-- Herói -->
-    <div id="hero"></div>
-    <!-- Tiro -->
-    <div id="bullet"></div>
-    <!-- Contador de Pontos -->
-    <div id="scoreboard">QUEBROU: <span id="score">0</span></div>
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    <!-- Controles para dispositivos móveis -->
+    <div id="touchControls">
+      <button id="leftButton">←</button>
+      <button id="shootButton">Chutar</button>
+      <button id="rightButton">→</button>
+    </div>
   </div>
 
-  <!-- Controles para dispositivos móveis -->
-  <div id="controls">
-    <button id="leftButton">←</button>
-    <button id="shootButton">Chutar</button>
-    <button id="rightButton">→</button>
-  </div>
-
+  <!-- Script do Jogo -->
   <script src="js/game.js"></script>
 </body>
 </html>
