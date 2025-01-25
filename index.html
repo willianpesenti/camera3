@@ -255,6 +255,15 @@
             startIntro();
         }
 
+        // Controles de Teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && player.x > 0) player.x -= 10;
+            if (e.key === 'ArrowRight' && player.x + player.width < canvas.width) player.x += 10;
+            if (e.key === ' ') {
+                fireBullet();
+            }
+        });
+
         // Controles por Touchscreen
         canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
         canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
