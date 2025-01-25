@@ -44,4 +44,74 @@ function shoot() {
       clearInterval(interval);
       bullet.style.display = "none";
       bulletActive = false;
-   
+    } else {
+      bullet.style.top = `${bulletTop - 10}px`;
+      checkCollision();
+    }
+  }, 30);
+}
+
+// Função para criar inimigos
+function createEnemy() {
+  const enemy = document.createElement("div");
+  enemy.classList.add("enemy");
+  enemy.style.position = "absolute";
+  enemy.style.width = "60px";
+  enemy.style.height = "60px";
+  enemy.style.background = "url('../images/camera.png') no-repeat center";
+  enemy.style.backgroundSize = "contain";
+  enemy.style.left = `${Math.random() * (gameArea.offsetWidth - 60)}px`;
+  enemy.style.top = "-60px";
+  gameArea.appendChild(enemy);
+  enemies.push(enemy);
+}
+
+// Atualiza inimigos
+function updateEnemies() {
+  enemies.forEach((enemy, index) => {
+    const currentTop = parseInt(enemy.style.top, 10);
+    if (currentTop > gameArea.offsetHeight) {
+      endGame();
+    } else {
+      enemy.style.top = `${currentTop + enemySpeed}px`;
+    }
+  });
+}
+
+// Verifica colisão do tiro
+function checkCollision() {
+  enemies.forEach((enemy, index) => {
+    const bulletRect = bullet.getBoundingClientRect();
+    const enemyRect = enemy.getBoundingClientRect();
+
+    if (
+      bulletRect.top <= enemyRect.bottom &&
+      bulletRect.bottom >= enemyRect.top &&
+      bulletRect.left <= enemyRect.right &&
+      bulletRect.right >= enemyRect.left
+    ) {
+      score++;
+      scoreboard.textContent = score;
+      enemy.remove();
+      enemies.splice(index, 1);
+      bullet.style.display = "none";
+      bulletActive = false;
+    }
+  });
+}
+
+// Fim do jogo
+function endGame() {
+  alert(`Game Over! Você quebrou ${score} câmera(s)!`);
+  window.location.reload();
+}
+
+// Inicia o jogo
+function startGame() {
+  gameInterval = setInterval(() => {
+    if (Math.random() < 0.02) createEnemy();
+    updateEnemies();
+  }, 30);
+}
+
+startGame();
