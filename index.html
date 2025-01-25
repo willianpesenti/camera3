@@ -85,7 +85,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('./images/bg final2.png') no-repeat center center;
+            background: url('./images/bgfinal2.png') no-repeat center center;
             background-size: cover;
             display: none;
             justify-content: center;
@@ -156,8 +156,8 @@
         window.addEventListener('resize', resizeCanvas);
 
         function initGame() {
-            const playerSize = isMobile ? 50 : 65;
-            const enemySize = isMobile ? 40 : 52;
+            const playerSize = isMobile ? 75 : 97.5; // 50% maior
+            const enemySize = isMobile ? 60 : 78; // 50% maior
             player = { x: canvas.width / 2 - playerSize / 2, y: canvas.height - 70, width: playerSize, height: playerSize };
             bullets = [];
             enemies = [];
