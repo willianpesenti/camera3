@@ -212,6 +212,11 @@
             startScreen.style.display = 'none';
             videoScreen.style.display = 'flex';
             introVideo.play();
+            introVideo.oncanplay = () => {
+                introVideo.play().catch(() => {
+                    console.error('Erro ao reproduzir o vídeo.');
+                });
+            };
             introVideo.onended = () => {
                 videoScreen.style.display = 'none';
                 startGame();
