@@ -114,16 +114,16 @@
             align-items: center;
             z-index: 3;
         }
-        #controls .control-area {
+        #controls .move-area {
             flex: 1;
+            height: 100%;
+        }
+        #controls .fire-area {
+            flex: 0 0 80px;
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-        #controls .control-area.right {
-            justify-content: flex-end;
-            padding-right: 20px;
         }
         #controls .fire-button {
             width: 80px;
@@ -153,8 +153,8 @@
     <canvas id="gameCanvas"></canvas>
     <!-- Controles para dispositivos móveis -->
     <div id="controls">
-        <div class="control-area" id="dragArea"></div>
-        <div class="control-area right">
+        <div class="move-area" id="moveArea"></div>
+        <div class="fire-area">
             <button class="fire-button" id="fireButton">▲</button>
         </div>
     </div>
@@ -172,11 +172,10 @@
         const startScreen = document.getElementById('startScreen');
         const endScreen = document.getElementById('endScreen');
         const controls = document.getElementById('controls');
-        const dragArea = document.getElementById('dragArea');
+        const moveArea = document.getElementById('moveArea');
         const fireButton = document.getElementById('fireButton');
 
         let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
-
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         function resizeCanvas() {
@@ -287,24 +286,24 @@
             enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight, speed });
         }
 
-        // Controles móveis
-        let initialTouchX = null;
+        // Controles Móveis
+        let touchStartX = null;
 
-        dragArea.addEventListener('touchstart', (e) => {
-            initialTouchX = e.touches[0].clientX;
+        moveArea.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
         });
 
-        dragArea.addEventListener('touchmove', (e) => {
+        moveArea.addEventListener('touchmove', (e) => {
             const touchX = e.touches[0].clientX;
-            if (initialTouchX !== null) {
-                const deltaX = touchX - initialTouchX;
-                player.x += deltaX * 0.5; // Ajusta a sensibilidade do arrastar
-                initialTouchX = touchX;
+            if (touchStartX !== null) {
+                const deltaX = touchX - touchStartX;
+                player.x += deltaX * 0.5;
+                touchStartX = touchX;
             }
         });
 
-        dragArea.addEventListener('touchend', () => {
-            initialTouchX = null;
+        moveArea.addEventListener('touchend', () => {
+            touchStartX = null;
         });
 
         fireButton.addEventListener('click', () => {
@@ -314,6 +313,20 @@
                 width: 5,
                 height: 10,
             });
+        });
+
+        // Controles para PC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') player.x -= 10;
+            if (e.key === 'ArrowRight') player.x += 10;
+            if (e.key === ' ') {
+                bullets.push({
+                    x: player.x + player.width / 2 - 2.5,
+                    y: player.y,
+                    width: 5,
+                    height: 10,
+                });
+            }
         });
     </script>
 </body>
