@@ -255,23 +255,53 @@
             startIntro();
         }
 
+        // Controles por Touchscreen
+        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+        let touchStartX = null;
+
+        function handleTouchStart(event) {
+            event.preventDefault();
+            const touchX = event.touches[0].clientX;
+            if (touchX < canvas.width / 2) {
+                touchStartX = touchX;
+            } else {
+                fireBullet();
+            }
+        }
+
+        function handleTouchMove(event) {
+            event.preventDefault();
+            const touchX = event.touches[0].clientX;
+            if (touchStartX !== null) {
+                const deltaX = touchX - touchStartX;
+                player.x += deltaX;
+                touchStartX = touchX;
+
+                // Limitar movimento dentro do canvas
+                if (player.x < 0) player.x = 0;
+                if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+            }
+        }
+
+        function fireBullet() {
+            bullets.push({
+                x: player.x + player.width / 2 - 10,
+                y: player.y,
+                width: 20,
+                height: 20,
+            });
+            playerImage.src = assets.heroShoot;
+            setTimeout(() => (playerImage.src = assets.heroIdle), 200);
+        }
+
         startButton.addEventListener('click', startIntro);
         restartButton.addEventListener('click', restartGame);
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' && player.x > 0) player.x -= 10;
-            if (e.key === 'ArrowRight' && player.x + player.width < canvas.width) player.x += 10;
-            if (e.key === ' ') {
-                bullets.push({
-                    x: player.x + player.width / 2 - 10,
-                    y: player.y,
-                    width: 20,
-                    height: 20,
-                });
-                playerImage.src = assets.heroShoot;
-                setTimeout(() => playerImage.src = assets.heroIdle, 200);
-            }
-        });
+        // Desativar zoom com dois dedos e outros comportamentos
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('dblclick', (e) => e.preventDefault());
     </script>
 </body>
 </html>
