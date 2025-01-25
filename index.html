@@ -133,6 +133,10 @@
         const startScreen = document.getElementById('startScreen');
         const endScreen = document.getElementById('endScreen');
 
+        let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
+        let isMovingLeft = false;
+        let isMovingRight = false;
+
         // Ajustar o tamanho do canvas
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -141,14 +145,13 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // Variáveis do jogo
-        let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
-
+        // Função para inicializar o jogo
         function initGame() {
             player = { x: canvas.width / 2, y: canvas.height - 50, width: 50, height: 20 };
             bullets = [];
             enemies = [];
             score = 0;
+            spawnEnemies();
         }
 
         function startIntro() {
@@ -168,7 +171,7 @@
             canvas.style.display = 'block'; // Mostrar o canvas
             initGame(); // Inicializar as variáveis do jogo
             gameLoopInterval = setInterval(updateGame, 1000 / 60);
-            difficultyInterval = setInterval(generateEnemy, 1000);
+            difficultyInterval = setInterval(spawnEnemies, 2000); // Criar novos inimigos a cada 2s
         }
 
         function restartGame() {
@@ -187,7 +190,10 @@
         function updateGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawPlayer();
-            // Funções de atualização de inimigos e balas podem ser chamadas aqui
+            drawBullets();
+            drawEnemies();
+            checkCollisions();
+            movePlayer();
         }
 
         function drawPlayer() {
@@ -195,9 +201,79 @@
             ctx.fillRect(player.x, player.y, player.width, player.height);
         }
 
-        function generateEnemy() {
-            // Função para criar inimigos
+        function movePlayer() {
+            if (isMovingLeft && player.x > 0) {
+                player.x -= 5;
+            }
+            if (isMovingRight && player.x + player.width < canvas.width) {
+                player.x += 5;
+            }
         }
+
+        function drawBullets() {
+            ctx.fillStyle = 'red';
+            bullets.forEach((bullet, index) => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+                bullet.y -= 5; // Mover bala para cima
+                if (bullet.y < 0) {
+                    bullets.splice(index, 1); // Remover bala fora da tela
+                }
+            });
+        }
+
+        function drawEnemies() {
+            ctx.fillStyle = 'green';
+            enemies.forEach((enemy, index) => {
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                enemy.y += enemy.speed;
+                if (enemy.y > canvas.height) {
+                    endGame(); // Fim de jogo se inimigo atingir o chão
+                }
+            });
+        }
+
+        function checkCollisions() {
+            bullets.forEach((bullet, bIndex) => {
+                enemies.forEach((enemy, eIndex) => {
+                    if (
+                        bullet.x < enemy.x + enemy.width &&
+                        bullet.x + bullet.width > enemy.x &&
+                        bullet.y < enemy.y + enemy.height &&
+                        bullet.y + bullet.height > enemy.y
+                    ) {
+                        bullets.splice(bIndex, 1); // Remover a bala
+                        enemies.splice(eIndex, 1); // Remover o inimigo
+                        score++;
+                    }
+                });
+            });
+        }
+
+        function spawnEnemies() {
+            const enemyWidth = 40;
+            const enemyHeight = 20;
+            const x = Math.random() * (canvas.width - enemyWidth);
+            const speed = 2 + Math.random() * 2; // Velocidade aleatória
+            enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight, speed });
+        }
+
+        // Controle de movimento do jogador
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') isMovingLeft = true;
+            if (e.key === 'ArrowRight') isMovingRight = true;
+            if (e.key === ' ') {
+                bullets.push({
+                    x: player.x + player.width / 2 - 2.5,
+                    y: player.y,
+                    width: 5,
+                    height: 10
+                });
+            }
+        });
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft') isMovingLeft = false;
+            if (e.key === 'ArrowRight') isMovingRight = false;
+        });
     </script>
 </body>
 </html>
