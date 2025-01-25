@@ -17,21 +17,19 @@
             background: url('./images/bg2.png') no-repeat center center;
             background-size: cover;
         }
-        #startScreen, #videoScreen, #endScreen {
+        #startScreen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            display: none;
+            background: url('./images/background.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             z-index: 2;
-        }
-        #startScreen {
-            background: url('./images/background.png') no-repeat center center;
-            background-size: cover;
         }
         #startScreen img {
             position: absolute;
@@ -65,7 +63,16 @@
             background-color: gray;
         }
         #videoScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: black;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
         }
         #videoScreen video {
             max-width: 100%;
@@ -73,8 +80,18 @@
             object-fit: contain;
         }
         #endScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: url('./images/bg final3.png') no-repeat center center;
             background-size: cover;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 2;
         }
         #endScreen h1 {
             font-size: 36px;
@@ -145,17 +162,17 @@
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
             } else {
-                // Configuração para PC: aumenta em 20%
-                canvas.width = window.innerWidth * 1.2; // 20% maior na largura
-                canvas.height = window.innerHeight * 1.2; // 20% maior na altura
+                // Configuração para PC: reduzido para 30% do tamanho da janela
+                canvas.width = window.innerWidth * 0.3; // 30% da largura
+                canvas.height = window.innerHeight * 0.3; // 30% da altura
             }
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
         function initGame() {
-            const playerSize = isMobile ? 50 : 78; // Aumentado 20% para PC
-            const enemySize = isMobile ? 40 : 62; // Aumentado 20% para PC
+            const playerSize = isMobile ? 50 : 65;
+            const enemySize = isMobile ? 40 : 52;
             player = { x: canvas.width / 2 - playerSize / 2, y: canvas.height - 70, width: playerSize, height: playerSize };
             bullets = [];
             enemies = [];
