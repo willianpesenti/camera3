@@ -1,4 +1,4 @@
-/* Layout Responsivo */
+/* Estilo geral */
 body {
   margin: 0;
   padding: 0;
@@ -7,6 +7,7 @@ body {
   align-items: center;
   height: 100vh;
   background-color: #000;
+  color: #fff;
 }
 
 /* Container do Jogo */
@@ -16,7 +17,7 @@ body {
   align-items: center;
 }
 
-/* Canvas */
+/* Canvas do jogo */
 #gameCanvas {
   background: url('../images/background.png') no-repeat center center;
   background-size: cover;
@@ -26,7 +27,7 @@ body {
   aspect-ratio: 4 / 3; /* Mantém a proporção */
 }
 
-/* Controles de Toque */
+/* Controles de toque */
 #touchControls {
   display: flex;
   justify-content: space-around;
@@ -41,10 +42,9 @@ body {
   font-size: 18px;
   font-weight: bold;
   background-color: #444;
-  color: #fff;
+  color: white;
   border: none;
   border-radius: 5px;
-  margin: 0 5px;
 }
 
 #touchControls button:active {
