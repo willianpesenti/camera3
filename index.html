@@ -1,35 +1,32 @@
+<!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CÂMERA 3</title>
   <link rel="stylesheet" href="css/style.css">
-</head>
-
-<body>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap');
   </style>
-  <!-- Canvas do jogo -->
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
+</head>
+<body>
+  <!-- Área do Jogo -->
+  <div id="gameArea">
+    <!-- Herói -->
+    <div id="hero"></div>
+    <!-- Tiro -->
+    <div id="bullet"></div>
+    <!-- Contador de Pontos -->
+    <div id="scoreboard">QUEBROU: <span id="score">0</span></div>
+  </div>
 
-  <!-- Script do jogo -->
-   <style>
-    body {
-      font-family: "Pixelify Sans";
-      font-optical-sizing: auto;
-      font-weight: 400;
-      font-style: normal;
-    }
-    #gameCanvas {
-      display: block;
-      margin: 0 auto;
-      background: #fff;
-    }
-   </style>
+  <!-- Controles para dispositivos móveis -->
+  <div id="controls">
+    <button id="leftButton">←</button>
+    <button id="shootButton">Chutar</button>
+    <button id="rightButton">→</button>
+  </div>
+
   <script src="js/game.js"></script>
-  
 </body>
-
 </html>
