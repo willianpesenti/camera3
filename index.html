@@ -75,9 +75,9 @@
             z-index: 2;
         }
         #videoScreen video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
         #endScreen {
             position: absolute;
@@ -131,7 +131,9 @@
         const startButton = document.getElementById('startButton');
         const restartButton = document.getElementById('restartButton');
 
-        let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        let player, bullets, enemies, score, gameLoopInterval, difficultyInterval, enemySpeedFactor = 1;
 
         const assets = {
             heroIdle: './images/hero_idle.png',
@@ -154,11 +156,14 @@
         window.addEventListener('resize', resizeCanvas);
 
         function initGame() {
-            player = { x: canvas.width / 2 - 25, y: canvas.height - 70, width: 50, height: 50 };
+            const playerSize = isMobile ? 50 : 65;
+            const enemySize = isMobile ? 40 : 52;
+            player = { x: canvas.width / 2 - playerSize / 2, y: canvas.height - 70, width: playerSize, height: playerSize };
             bullets = [];
             enemies = [];
             score = 0;
-            spawnEnemies();
+            enemySpeedFactor = 1;
+            spawnEnemies(enemySize);
         }
 
         function startIntro() {
@@ -179,7 +184,7 @@
             gameMusic.play();
             initGame();
             gameLoopInterval = setInterval(updateGame, 1000 / 60);
-            difficultyInterval = setInterval(spawnEnemies, 2000);
+            difficultyInterval = setInterval(increaseDifficulty, 10000); // Aumenta a dificuldade a cada 10 segundos
         }
 
         function updateGame() {
@@ -207,7 +212,7 @@
             enemyImage.src = assets.enemy;
             enemies.forEach((enemy, index) => {
                 ctx.drawImage(enemyImage, enemy.x, enemy.y, enemy.width, enemy.height);
-                enemy.y += 2;
+                enemy.y += enemy.speed * enemySpeedFactor;
                 if (enemy.y > canvas.height) {
                     endGame();
                 }
@@ -231,11 +236,18 @@
             });
         }
 
-        function spawnEnemies() {
-            const enemyWidth = 40;
-            const enemyHeight = 40;
-            const x = Math.random() * (canvas.width - enemyWidth);
-            enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight });
+        function spawnEnemies(size) {
+            setInterval(() => {
+                const enemyWidth = size;
+                const enemyHeight = size;
+                const x = Math.random() * (canvas.width - enemyWidth);
+                const speed = Math.random() * 1.5 + 0.5; // Velocidades aleatórias
+                enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight, speed });
+            }, 1000); // 1 inimigo a cada 1 segundo (ajustável)
+        }
+
+        function increaseDifficulty() {
+            enemySpeedFactor += 0.2;
         }
 
         function endGame() {
@@ -255,62 +267,21 @@
             startIntro();
         }
 
-        // Controles de Teclado
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft' && player.x > 0) player.x -= 10;
             if (e.key === 'ArrowRight' && player.x + player.width < canvas.width) player.x += 10;
             if (e.key === ' ') {
-                fireBullet();
+                bullets.push({
+                    x: player.x + player.width / 2 - 10,
+                    y: player.y,
+                    width: 20,
+                    height: 20,
+                });
             }
         });
 
-        // Controles por Touchscreen
-        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-
-        let touchStartX = null;
-
-        function handleTouchStart(event) {
-            event.preventDefault();
-            const touchX = event.touches[0].clientX;
-            if (touchX < canvas.width / 2) {
-                touchStartX = touchX;
-            } else {
-                fireBullet();
-            }
-        }
-
-        function handleTouchMove(event) {
-            event.preventDefault();
-            const touchX = event.touches[0].clientX;
-            if (touchStartX !== null) {
-                const deltaX = touchX - touchStartX;
-                player.x += deltaX;
-                touchStartX = touchX;
-
-                // Limitar movimento dentro do canvas
-                if (player.x < 0) player.x = 0;
-                if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
-            }
-        }
-
-        function fireBullet() {
-            bullets.push({
-                x: player.x + player.width / 2 - 10,
-                y: player.y,
-                width: 20,
-                height: 20,
-            });
-            playerImage.src = assets.heroShoot;
-            setTimeout(() => (playerImage.src = assets.heroIdle), 200);
-        }
-
         startButton.addEventListener('click', startIntro);
         restartButton.addEventListener('click', restartGame);
-
-        // Desativar zoom com dois dedos e outros comportamentos
-        document.addEventListener('gesturestart', (e) => e.preventDefault());
-        document.addEventListener('dblclick', (e) => e.preventDefault());
     </script>
 </body>
 </html>
