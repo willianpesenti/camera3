@@ -85,7 +85,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('./images/bgfinal2.png') no-repeat center center;
+            background: url('./images/bg final2.png') no-repeat center center;
             background-size: cover;
             display: none;
             justify-content: center;
@@ -93,7 +93,15 @@
             flex-direction: column;
             z-index: 2;
         }
-        #endScreen h1, #endScreen p {
+        #endScreen h1 {
+            font-size: 36px;
+            margin: 10px 0;
+            color: white;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            line-height: 1.4;
+        }
+        #endScreen p {
             font-size: 32px;
             margin: 10px 0;
             color: white;
@@ -113,7 +121,7 @@
     </div>
     <canvas id="gameCanvas"></canvas>
     <div id="endScreen">
-        <h1>QUANTAS CÂMERAS VOCÊ QUEBROU?</h1>
+        <h1>QUANTAS CÂMERAS<br>VOCÊ QUEBROU?</h1>
         <p id="finalScore"></p>
         <button id="restartButton">Tentar quebrar mais!</button>
     </div>
@@ -156,8 +164,8 @@
         window.addEventListener('resize', resizeCanvas);
 
         function initGame() {
-            const playerSize = isMobile ? 75 : 97.5; // 50% maior
-            const enemySize = isMobile ? 60 : 78; // 50% maior
+            const playerSize = isMobile ? 50 : 65;
+            const enemySize = isMobile ? 40 : 52;
             player = { x: canvas.width / 2 - playerSize / 2, y: canvas.height - 70, width: playerSize, height: playerSize };
             bullets = [];
             enemies = [];
