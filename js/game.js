@@ -26,17 +26,26 @@ resizeCanvas();
 document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") moveHero(-20);
   if (e.key === "ArrowRight") moveHero(20);
-  if (e.key === " ") shoot();
+  if (e.key === " ") handleShootOrRestart();
 });
 
 // Controles por toque
 document.getElementById("leftButton").addEventListener("click", () => moveHero(-20));
 document.getElementById("rightButton").addEventListener("click", () => moveHero(20));
-document.getElementById("shootButton").addEventListener("click", shoot);
+document.getElementById("shootButton").addEventListener("click", handleShootOrRestart);
 
 // Movimentação do herói
 function moveHero(offset) {
   hero.x = Math.max(0, Math.min(WIDTH - hero.width, hero.x + offset));
+}
+
+// Disparo ou reinício do jogo
+function handleShootOrRestart() {
+  if (gameState === "PLAYING") {
+    shoot();
+  } else if (gameState === "GAME_OVER") {
+    restartGame();
+  }
 }
 
 // Disparo
@@ -107,6 +116,27 @@ function render() {
   ctx.fillText(`QUEBROU: ${score} câmeras`, 10, 30);
 }
 
+// Tela de Game Over
+function drawGameOverScreen() {
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  ctx.fillStyle = "red";
+  ctx.font = "30px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(`Fim de jogo! Pontuação: ${score}`, WIDTH / 2, HEIGHT / 2 - 50);
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Pressione 'Chutar' para reiniciar", WIDTH / 2, HEIGHT / 2 + 50);
+}
+
+// Reinicia o jogo
+function restartGame() {
+  gameState = "TITLE";
+  score = 0;
+  bullets = [];
+  enemies = [];
+}
+
 // Loop do Jogo
 function gameLoop() {
   if (gameState === "PLAYING") {
@@ -118,14 +148,9 @@ function gameLoop() {
     ctx.fillStyle = "white";
     ctx.font = "30px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("Pressione ESPAÇO para começar", WIDTH / 2, HEIGHT / 2);
+    ctx.fillText("Pressione ESPAÇO ou 'Chutar' para começar", WIDTH / 2, HEIGHT / 2);
   } else if (gameState === "GAME_OVER") {
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    ctx.fillStyle = "red";
-    ctx.font = "30px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText(`Fim de jogo! Pontuação: ${score}`, WIDTH / 2, HEIGHT / 2);
+    drawGameOverScreen();
   }
   requestAnimationFrame(gameLoop);
 }
