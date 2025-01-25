@@ -1,12 +1,19 @@
 // Configuração do Canvas
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const WIDTH = 800; // Largura original
-const HEIGHT = 600; // Altura original
+const WIDTH = 800;
+const HEIGHT = 600;
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
 
-// Redimensionar para manter responsividade
+// Variáveis do Jogo
+let gameState = "TITLE"; // Estados possíveis: TITLE, PLAYING, GAME_OVER
+let hero = { x: WIDTH / 2 - 50, y: HEIGHT - 120, width: 100, height: 100 };
+let bullets = [];
+let enemies = [];
+let score = 0;
+
+// Função para redimensionar o canvas
 function resizeCanvas() {
   const scale = Math.min(window.innerWidth / WIDTH, window.innerHeight / HEIGHT);
   canvas.style.width = `${WIDTH * scale}px`;
@@ -15,28 +22,19 @@ function resizeCanvas() {
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
-// Estado do Jogo
-let gameState = "TITLE"; // TITLE, PLAYING, GAME_OVER
-
-// Elementos do Jogo
-const hero = { x: WIDTH / 2 - 50, y: HEIGHT - 120, width: 100, height: 100 };
-let bullets = [];
-let enemies = [];
-let score = 0;
-
-// Controles de Toque
-document.getElementById("leftButton").addEventListener("click", () => moveHero(-20));
-document.getElementById("rightButton").addEventListener("click", () => moveHero(20));
-document.getElementById("shootButton").addEventListener("click", shoot);
-
-// Controles por Teclado
+// Controles por teclado
 document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") moveHero(-20);
   if (e.key === "ArrowRight") moveHero(20);
   if (e.key === " ") shoot();
 });
 
-// Movimentação do Herói
+// Controles por toque
+document.getElementById("leftButton").addEventListener("click", () => moveHero(-20));
+document.getElementById("rightButton").addEventListener("click", () => moveHero(20));
+document.getElementById("shootButton").addEventListener("click", shoot);
+
+// Movimentação do herói
 function moveHero(offset) {
   hero.x = Math.max(0, Math.min(WIDTH - hero.width, hero.x + offset));
 }
@@ -46,7 +44,7 @@ function shoot() {
   bullets.push({ x: hero.x + hero.width / 2 - 5, y: hero.y, width: 10, height: 20 });
 }
 
-// Criação de Inimigos
+// Criação de inimigos
 function createEnemy() {
   if (gameState !== "PLAYING") return;
   const x = Math.random() * (WIDTH - 60);
@@ -54,7 +52,7 @@ function createEnemy() {
   setTimeout(createEnemy, 1000); // Cria um novo inimigo a cada 1 segundo
 }
 
-// Atualização do Jogo
+// Atualização do jogo
 function updateGame() {
   bullets.forEach((bullet) => {
     bullet.y -= 10;
@@ -63,7 +61,7 @@ function updateGame() {
 
   enemies.forEach((enemy) => {
     enemy.y += enemy.speed;
-    if (enemy.y > HEIGHT) gameState = "GAME_OVER"; // Fim do jogo
+    if (enemy.y > HEIGHT) gameState = "GAME_OVER";
   });
 
   enemies = enemies.filter((enemy) => {
@@ -82,6 +80,10 @@ function updateGame() {
 // Renderização
 function render() {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+  // Fundo
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
   // Herói
   ctx.fillStyle = "blue";
