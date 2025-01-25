@@ -107,7 +107,7 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-            height: 60px; /* Área menor para controles */
+            height: 80px; /* Área de toque */
             background: rgba(0, 0, 0, 0.8);
             display: none; /* Apenas em dispositivos móveis */
             justify-content: center;
@@ -115,18 +115,18 @@
             z-index: 3;
         }
         #controls .control-touch {
-            width: 80%;
+            flex: 1;
             height: 100%;
         }
         #controls .fire-area {
-            flex: 0 0 60px; /* Botão menor */
+            flex: 0 0 80px;
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         #controls .fire-button {
-            width: 60px; /* Botão menor */
+            width: 60px;
             height: 60px;
             background-color: white;
             border: none;
@@ -138,27 +138,22 @@
     </style>
 </head>
 <body>
-    <!-- Tela Inicial -->
     <div id="startScreen">
         <img src="./images/titlePerson.png" alt="Personagem do Título">
         <h1>CÂMERA 3</h1>
         <h2>O JOGO</h2>
         <button onclick="startIntro()">Iniciar Jogo</button>
     </div>
-    <!-- Tela do Vídeo -->
     <div id="videoScreen">
         <video id="introVideo" src="./video/intro.mp4" playsinline></video>
     </div>
-    <!-- Tela do Jogo -->
     <canvas id="gameCanvas"></canvas>
-    <!-- Controles para dispositivos móveis -->
     <div id="controls">
         <div class="control-touch" id="touchArea"></div>
         <div class="fire-area">
             <button class="fire-button" id="fireButton">▲</button>
         </div>
     </div>
-    <!-- Tela Final -->
     <div id="endScreen">
         <h1>Fim de Jogo</h1>
         <p id="finalScore"></p>
@@ -184,7 +179,7 @@
 
         function resizeCanvas() {
             if (isMobile) {
-                canvas.width = window.innerWidth * 0.9; // Melhor proporção para controles
+                canvas.width = window.innerWidth * 0.95; 
                 canvas.height = window.innerHeight * 0.7;
             } else {
                 canvas.width = window.innerWidth;
@@ -236,7 +231,7 @@
             clearInterval(difficultyInterval);
             gameMusic.pause();
             endScreen.style.display = 'flex';
-            gameOverAudio.play(); // Toca a música de Game Over
+            gameOverAudio.play();
             document.getElementById('finalScore').innerText = `Pontuação: ${score}`;
         }
 
@@ -337,7 +332,6 @@
             }
         });
 
-        // Bloquear Zoom por Toque Duplo
         document.addEventListener('gesturestart', (e) => e.preventDefault());
         document.addEventListener('dblclick', (e) => e.preventDefault());
     </script>
