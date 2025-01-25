@@ -99,38 +99,6 @@
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
         }
-        #controls {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 80px;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 3;
-        }
-        #controls .control-touch {
-            flex: 1;
-            height: 100%;
-        }
-        #controls .fire-area {
-            flex: 0 0 80px;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #controls .fire-button {
-            width: 60px;
-            height: 60px;
-            background-color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 16px;
-            color: black;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -144,80 +112,35 @@
         <video id="introVideo" src="./video/intro.mp4" playsinline></video>
     </div>
     <canvas id="gameCanvas"></canvas>
-    <div id="controls">
-        <div class="control-touch" id="touchArea"></div>
-        <div class="fire-area">
-            <button class="fire-button" id="fireButton">▲</button>
-        </div>
-    </div>
     <div id="endScreen">
         <h1>Fim de Jogo</h1>
         <p id="finalScore"></p>
         <button onclick="restartGame()">Jogar Novamente</button>
     </div>
-    <audio id="gameOverAudio" src="./audio/camera-3-game-over.mp3"></audio>
-    <audio id="gameMusic" src="./audio/camera3.mp3" loop></audio>
     <script>
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
         const introVideo = document.getElementById('introVideo');
         const videoScreen = document.getElementById('videoScreen');
         const startScreen = document.getElementById('startScreen');
         const endScreen = document.getElementById('endScreen');
-        const controls = document.getElementById('controls');
-        const touchArea = document.getElementById('touchArea');
-        const fireButton = document.getElementById('fireButton');
-        const gameOverAudio = document.getElementById('gameOverAudio');
-        const gameMusic = document.getElementById('gameMusic');
 
-        let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-        const assets = {
-            background: './images/bg2.png',
-            heroIdle: './images/hero_idle.png',
-            heroShoot: './images/hero_kick.png',
-            enemy: './images/camera.png',
-            bullet: './images/bola.png',
-            gameOverBg: './images/bgfinal.png',
-        };
-
-        const playerImage = new Image();
-        playerImage.src = assets.heroIdle;
-
-        const bulletImage = new Image();
-        bulletImage.src = assets.bullet;
-
-        function resizeCanvas() {
-            if (isMobile) {
-                canvas.width = window.innerWidth * 0.95;
-                canvas.height = window.innerHeight * 0.7;
-            } else {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        function initGame() {
-            player = { x: canvas.width / 2, y: canvas.height - 70, width: 50, height: 50 };
-            bullets = [];
-            enemies = [];
-            score = 0;
-            spawnEnemies();
-        }
+        let gameLoopInterval;
 
         function startIntro() {
+            // Ocultar tela inicial
             startScreen.style.display = 'none';
+
+            // Mostrar tela do vídeo
             videoScreen.style.display = 'flex';
-            introVideo.play();
-            introVideo.oncanplay = () => {
-                introVideo.play().catch(() => {
-                    console.error('Erro ao reproduzir o vídeo.');
-                });
-            };
+
+            // Reproduzir o vídeo quando estiver pronto
+            introVideo.currentTime = 0;
+            introVideo.play().catch((error) => {
+                console.error("Erro ao reproduzir o vídeo:", error);
+            });
+
             introVideo.onended = () => {
+                // Ocultar vídeo e iniciar o jogo
                 videoScreen.style.display = 'none';
                 startGame();
             };
@@ -225,127 +148,27 @@
 
         function startGame() {
             canvas.style.display = 'block';
-            if (isMobile) controls.style.display = 'flex';
-            gameMusic.currentTime = 0;
-            gameMusic.play();
             initGame();
             gameLoopInterval = setInterval(updateGame, 1000 / 60);
-            difficultyInterval = setInterval(spawnEnemies, 2000);
         }
 
-        function restartGame() {
-            endScreen.style.display = 'none';
-            controls.style.display = 'none';
-            gameOverAudio.pause();
-            gameOverAudio.currentTime = 0;
-            startIntro();
+        function initGame() {
+            // Inicialização do jogo (player, inimigos, etc.)
+        }
+
+        function updateGame() {
+            // Lógica do jogo
         }
 
         function endGame() {
             clearInterval(gameLoopInterval);
-            clearInterval(difficultyInterval);
-            gameMusic.pause();
             endScreen.style.display = 'flex';
-            gameOverAudio.play();
-            document.getElementById('finalScore').innerText = `Pontuação: ${score}`;
         }
 
-        function updateGame() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawPlayer();
-            drawBullets();
-            drawEnemies();
-            checkCollisions();
+        function restartGame() {
+            endScreen.style.display = 'none';
+            startIntro();
         }
-
-        function drawPlayer() {
-            ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
-        }
-
-        function drawBullets() {
-            bullets.forEach((bullet) => {
-                ctx.drawImage(bulletImage, bullet.x, bullet.y, bullet.width, bullet.height);
-                bullet.y -= 5;
-            });
-        }
-
-        function drawEnemies() {
-            const enemyImage = new Image();
-            enemyImage.src = assets.enemy;
-            enemies.forEach((enemy) => {
-                ctx.drawImage(enemyImage, enemy.x, enemy.y, enemy.width, enemy.height);
-                enemy.y += 2;
-                if (enemy.y > canvas.height) endGame();
-            });
-        }
-
-        function checkCollisions() {
-            bullets.forEach((bullet, bIndex) => {
-                enemies.forEach((enemy, eIndex) => {
-                    if (
-                        bullet.x < enemy.x + enemy.width &&
-                        bullet.x + bullet.width > enemy.x &&
-                        bullet.y < enemy.y + enemy.height &&
-                        bullet.y + bullet.height > enemy.y
-                    ) {
-                        bullets.splice(bIndex, 1);
-                        enemies.splice(eIndex, 1);
-                        score++;
-                    }
-                });
-            });
-        }
-
-        function spawnEnemies() {
-            const enemyWidth = 40;
-            const enemyHeight = 40;
-            const x = Math.random() * (canvas.width - enemyWidth);
-            enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight });
-        }
-
-        let touchX = null;
-        touchArea.addEventListener('touchstart', (e) => {
-            touchX = e.touches[0].clientX;
-        });
-
-        touchArea.addEventListener('touchmove', (e) => {
-            const moveX = e.touches[0].clientX;
-            if (moveX >= 0 && moveX <= canvas.width - player.width) {
-                player.x = moveX - player.width / 2;
-            }
-        });
-
-        fireButton.addEventListener('touchstart', () => {
-            bullets.push({
-                x: player.x + player.width / 2 - 10,
-                y: player.y,
-                width: 20,
-                height: 20,
-            });
-            playerImage.src = assets.heroShoot;
-        });
-
-        fireButton.addEventListener('touchend', () => {
-            playerImage.src = assets.heroIdle;
-        });
-
-        document.addEventListener('gesturestart', (e) => e.preventDefault());
-        document.addEventListener('dblclick', (e) => e.preventDefault());
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' && player.x > 0) player.x -= 10;
-            if (e.key === 'ArrowRight' && player.x + player.width < canvas.width) player.x += 10;
-            if (e.key === ' ') {
-                bullets.push({
-                    x: player.x + player.width / 2 - 10,
-                    y: player.y,
-                    width: 20,
-                    height: 20,
-                });
-            }
-        });
-
-        startIntro();
     </script>
 </body>
 </html>
