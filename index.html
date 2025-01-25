@@ -103,6 +103,38 @@
             text-align: center;
             z-index: 2;
         }
+        #controls {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.8);
+            display: none; /* Apenas em dispositivos móveis */
+            justify-content: space-between;
+            align-items: center;
+            z-index: 3;
+        }
+        #controls .control-area {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #controls .control-area.right {
+            justify-content: flex-end;
+            padding-right: 20px;
+        }
+        #controls .fire-button {
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            color: black;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -119,6 +151,13 @@
     </div>
     <!-- Tela do Jogo -->
     <canvas id="gameCanvas"></canvas>
+    <!-- Controles para dispositivos móveis -->
+    <div id="controls">
+        <div class="control-area" id="dragArea"></div>
+        <div class="control-area right">
+            <button class="fire-button" id="fireButton">▲</button>
+        </div>
+    </div>
     <!-- Tela Final -->
     <div id="endScreen">
         <h1>Fim de Jogo</h1>
@@ -132,12 +171,14 @@
         const videoScreen = document.getElementById('videoScreen');
         const startScreen = document.getElementById('startScreen');
         const endScreen = document.getElementById('endScreen');
+        const controls = document.getElementById('controls');
+        const dragArea = document.getElementById('dragArea');
+        const fireButton = document.getElementById('fireButton');
 
         let player, bullets, enemies, score, gameLoopInterval, difficultyInterval;
-        let isMovingLeft = false;
-        let isMovingRight = false;
 
-        // Ajustar o tamanho do canvas
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -145,7 +186,6 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // Função para inicializar o jogo
         function initGame() {
             player = { x: canvas.width / 2, y: canvas.height - 50, width: 50, height: 20 };
             bullets = [];
@@ -155,12 +195,10 @@
         }
 
         function startIntro() {
-            // Ocultar a tela inicial e mostrar o vídeo
             startScreen.style.display = 'none';
             videoScreen.style.display = 'flex';
             introVideo.play();
 
-            // Iniciar o jogo quando o vídeo terminar
             introVideo.onended = () => {
                 videoScreen.style.display = 'none';
                 startGame();
@@ -168,14 +206,16 @@
         }
 
         function startGame() {
-            canvas.style.display = 'block'; // Mostrar o canvas
-            initGame(); // Inicializar as variáveis do jogo
+            canvas.style.display = 'block';
+            if (isMobile) {
+                controls.style.display = 'flex';
+            }
+            initGame();
             gameLoopInterval = setInterval(updateGame, 1000 / 60);
-            difficultyInterval = setInterval(spawnEnemies, 2000); // Criar novos inimigos a cada 2s
+            difficultyInterval = setInterval(spawnEnemies, 2000);
         }
 
         function restartGame() {
-            // Reiniciar o fluxo do jogo
             endScreen.style.display = 'none';
             startIntro();
         }
@@ -183,7 +223,7 @@
         function endGame() {
             clearInterval(gameLoopInterval);
             clearInterval(difficultyInterval);
-            endScreen.style.display = 'flex'; // Mostrar a tela de game over
+            endScreen.style.display = 'flex';
             document.getElementById('finalScore').innerText = `Pontuação: ${score}`;
         }
 
@@ -193,7 +233,6 @@
             drawBullets();
             drawEnemies();
             checkCollisions();
-            movePlayer();
         }
 
         function drawPlayer() {
@@ -201,22 +240,13 @@
             ctx.fillRect(player.x, player.y, player.width, player.height);
         }
 
-        function movePlayer() {
-            if (isMovingLeft && player.x > 0) {
-                player.x -= 5;
-            }
-            if (isMovingRight && player.x + player.width < canvas.width) {
-                player.x += 5;
-            }
-        }
-
         function drawBullets() {
             ctx.fillStyle = 'red';
             bullets.forEach((bullet, index) => {
                 ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
-                bullet.y -= 5; // Mover bala para cima
+                bullet.y -= 5;
                 if (bullet.y < 0) {
-                    bullets.splice(index, 1); // Remover bala fora da tela
+                    bullets.splice(index, 1);
                 }
             });
         }
@@ -227,7 +257,7 @@
                 ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
                 enemy.y += enemy.speed;
                 if (enemy.y > canvas.height) {
-                    endGame(); // Fim de jogo se inimigo atingir o chão
+                    endGame();
                 }
             });
         }
@@ -241,8 +271,8 @@
                         bullet.y < enemy.y + enemy.height &&
                         bullet.y + bullet.height > enemy.y
                     ) {
-                        bullets.splice(bIndex, 1); // Remover a bala
-                        enemies.splice(eIndex, 1); // Remover o inimigo
+                        bullets.splice(bIndex, 1);
+                        enemies.splice(eIndex, 1);
                         score++;
                     }
                 });
@@ -253,26 +283,37 @@
             const enemyWidth = 40;
             const enemyHeight = 20;
             const x = Math.random() * (canvas.width - enemyWidth);
-            const speed = 2 + Math.random() * 2; // Velocidade aleatória
+            const speed = 2 + Math.random() * 2;
             enemies.push({ x, y: 0, width: enemyWidth, height: enemyHeight, speed });
         }
 
-        // Controle de movimento do jogador
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') isMovingLeft = true;
-            if (e.key === 'ArrowRight') isMovingRight = true;
-            if (e.key === ' ') {
-                bullets.push({
-                    x: player.x + player.width / 2 - 2.5,
-                    y: player.y,
-                    width: 5,
-                    height: 10
-                });
+        // Controles móveis
+        let initialTouchX = null;
+
+        dragArea.addEventListener('touchstart', (e) => {
+            initialTouchX = e.touches[0].clientX;
+        });
+
+        dragArea.addEventListener('touchmove', (e) => {
+            const touchX = e.touches[0].clientX;
+            if (initialTouchX !== null) {
+                const deltaX = touchX - initialTouchX;
+                player.x += deltaX * 0.5; // Ajusta a sensibilidade do arrastar
+                initialTouchX = touchX;
             }
         });
-        document.addEventListener('keyup', (e) => {
-            if (e.key === 'ArrowLeft') isMovingLeft = false;
-            if (e.key === 'ArrowRight') isMovingRight = false;
+
+        dragArea.addEventListener('touchend', () => {
+            initialTouchX = null;
+        });
+
+        fireButton.addEventListener('click', () => {
+            bullets.push({
+                x: player.x + player.width / 2 - 2.5,
+                y: player.y,
+                width: 5,
+                height: 10,
+            });
         });
     </script>
 </body>
